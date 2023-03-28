@@ -1,3 +1,7 @@
 
-exports.client = require('./client');
-exports.invoices = require('./invoices');
+/** CLIENT */
+export { default as client } from './client';
+
+/** STRUCTURES */
+export { default as Invoice } from './structures/invoice';
+export { default as Item } from './structures/item';

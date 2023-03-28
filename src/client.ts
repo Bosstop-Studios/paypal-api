@@ -1,6 +1,9 @@
 import axios from "axios";
 
+import invoices from "./invoices";
+
 export default class client {
+    invoices: invoices;
     sandbox: boolean;
     instance: any;
     baseUrl: string;
@@ -21,24 +24,20 @@ export default class client {
         } else {
             this.baseUrl = "https://api-m.sandbox.paypal.com/";
         }
+        
+        this.invoices = new invoices(this);
 
     }
+
     parseResponse(response:any) {
         if(response) return { status: response.status, data: response.data };
         else return { status: 500, data: "API error" };
     }
 
-    getSandbox() { return this.sandbox; }
-    getClientId() { return this.clientId; }
-    getClientSecret() { return this.clientSecret; }
-    getEmail() { return this.email; }
-    getBaseUrl() { return this.baseUrl; }
+    loadClasses() {
+        this.invoices = new invoices(this);
+    }
 
-    setSandbox(sandbox:boolean) { this.sandbox = sandbox; }
-    setClientId(clientId:string) { this.clientId = clientId; }
-    setClientSecret(clientSecret:string) { this.clientSecret = clientSecret; }
-    setEmail(email:string) { this.email = email; }
-    
     async auth() {
         let result;
         try {
@@ -53,7 +52,6 @@ export default class client {
             })
             
             if(res.status != 200) return new Error("Paypal auth failed");
-            console.log("Paypal auth success");
             this.instance = axios.create({
                 baseURL: this.baseUrl,
                 timeout: 5000,
@@ -67,9 +65,21 @@ export default class client {
             result = res;
 
         } finally {
+            this.loadClasses();
             return this.parseResponse(result);
         }
     }
+
+    getSandbox() { return this.sandbox; }
+    getClientId() { return this.clientId; }
+    getClientSecret() { return this.clientSecret; }
+    getEmail() { return this.email; }
+    getBaseUrl() { return this.baseUrl; }
+
+    setSandbox(sandbox:boolean) { this.sandbox = sandbox; }
+    setClientId(clientId:string) { this.clientId = clientId; }
+    setClientSecret(clientSecret:string) { this.clientSecret = clientSecret; }
+    setEmail(email:string) { this.email = email; }
 
     /*
     async logout() {
