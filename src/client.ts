@@ -1,12 +1,10 @@
 import axios from "axios";
 
-import invoices from "./invoices";
-
 export default class client {
-    invoices: invoices;
     sandbox: boolean;
     instance: any;
     baseUrl: string;
+    user: any;
     email: string;
     clientId: string;
     clientSecret: string;
@@ -17,6 +15,11 @@ export default class client {
         this.clientId = obj.clientId || null;
         this.clientSecret = obj.clientSecret || null;
 
+        this.user = { 
+            bussiness_name: obj.user.bussiness_name || null,
+            website: obj.user.website || null,
+        }
+
         if(this.email == null) throw new Error("Paypal Email Required")
 
         if(this.sandbox) {
@@ -24,18 +27,12 @@ export default class client {
         } else {
             this.baseUrl = "https://api-m.sandbox.paypal.com/";
         }
-        
-        this.invoices = new invoices(this);
 
     }
 
     parseResponse(response:any) {
         if(response) return { status: response.status, data: response.data };
         else return { status: 500, data: "API error" };
-    }
-
-    loadClasses() {
-        this.invoices = new invoices(this);
     }
 
     async auth() {
@@ -65,7 +62,6 @@ export default class client {
             result = res;
 
         } finally {
-            this.loadClasses();
             return this.parseResponse(result);
         }
     }
